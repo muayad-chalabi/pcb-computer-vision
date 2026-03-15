@@ -1,0 +1,9 @@
+yolo_dataset/
+yolo_classification_dataset/
+data/
+yolo/
+runs/
+*.pt
+*.png
+*.jpg
+*.jpeg
