@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 import random
 from pathlib import Path
+<<<<<<< HEAD
 from typing import Any, Callable, Iterable, Union
 
 import matplotlib.pyplot as plt
@@ -79,6 +80,44 @@ def save_image_grid(
 
     # Turn off remaining axes
     for ax in axes_list[len(selected):]:
+=======
+from typing import Iterable
+
+import matplotlib.pyplot as plt
+from PIL import Image
+
+
+def save_image_grid(
+    images: Iterable[Path],
+    output_path: Path,
+    *,
+    max_images: int = 9,
+    columns: int = 3,
+    seed: int | None = 42,
+) -> Path:
+    """Save a grid of images to disk for quick inspection."""
+
+    image_list = [path for path in images]
+    if not image_list:
+        raise ValueError("No images found to visualize.")
+
+    if seed is not None:
+        random.Random(seed).shuffle(image_list)
+
+    selected = image_list[:max_images]
+    rows = math.ceil(len(selected) / columns)
+
+    fig, axes = plt.subplots(rows, columns, figsize=(4 * columns, 4 * rows))
+    axes_list = axes.ravel().tolist() if hasattr(axes, "ravel") else [axes]
+
+    for ax, image_path in zip(axes_list, selected, strict=False):
+        with Image.open(image_path) as image:
+            ax.imshow(image)
+        ax.set_title(image_path.name)
+        ax.axis("off")
+
+    for ax in axes_list[len(selected) :]:
+>>>>>>> main
         ax.axis("off")
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -86,6 +125,7 @@ def save_image_grid(
     fig.savefig(output_path, dpi=150)
     plt.close(fig)
     return output_path
+<<<<<<< HEAD
 
 
 def overlay_bbox(
@@ -158,3 +198,5 @@ def overlay_item_bbox(
     if hasattr(item, "bbox") and item.bbox:
         return overlay_bbox(image, item.bbox, color=color, width=width)
     return image
+=======
+>>>>>>> main

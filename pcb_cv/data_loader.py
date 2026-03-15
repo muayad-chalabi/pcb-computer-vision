@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+<<<<<<< HEAD
 import csv
 import dataclasses
 from pathlib import Path
@@ -90,6 +91,26 @@ class DatasetConfig:
     """Configuration for locating the PCB dataset."""
 
     root_dir: Path
+=======
+import dataclasses
+import os
+import shutil
+import subprocess
+from pathlib import Path
+from typing import Iterable
+
+DATASET_SLUG = "frettapper/micropcb-images"
+
+IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".bmp", ".tiff")
+
+
+@dataclasses.dataclass(frozen=True)
+class DatasetConfig:
+    """Configuration for locating and downloading the PCB dataset."""
+
+    root_dir: Path
+    dataset_slug: str = DATASET_SLUG
+>>>>>>> main
 
     @property
     def default_dataset_dir(self) -> Path:
@@ -99,17 +120,26 @@ class DatasetConfig:
 def ensure_dataset(config: DatasetConfig) -> Path:
     """Ensure the dataset is available on disk.
 
+<<<<<<< HEAD
     Returns the dataset directory if found successfully.
+=======
+    Returns the dataset directory if found or downloaded successfully.
+>>>>>>> main
     """
 
     config.root_dir.mkdir(parents=True, exist_ok=True)
     dataset_dir = config.default_dataset_dir
+<<<<<<< HEAD
     if _has_images(dataset_dir) or (dataset_dir / "train_bboxes.csv").exists():
+=======
+    if _has_images(dataset_dir):
+>>>>>>> main
         return dataset_dir
 
     if _has_images(config.root_dir):
         return config.root_dir
 
+<<<<<<< HEAD
     raise FileNotFoundError(
         "Dataset not found. Place the extracted dataset under "
         f"{config.root_dir} (or {dataset_dir}) and try again."
@@ -206,6 +236,30 @@ def load_dataset(config: DatasetConfig) -> List[PCBImage]:
     return records
 
 
+=======
+    kaggle_path = shutil.which("kaggle")
+    if kaggle_path is None:
+        raise FileNotFoundError(
+            "Dataset not found and Kaggle CLI is unavailable. "
+            "Install kaggle and configure credentials, or place the dataset under "
+            f"{config.root_dir}."
+        )
+
+    _download_dataset(config, kaggle_path)
+
+    if _has_images(dataset_dir):
+        return dataset_dir
+    if _has_images(config.root_dir):
+        return config.root_dir
+
+    raise FileNotFoundError(
+        "Dataset download completed but images were not found. "
+        "Check the extracted directory structure under "
+        f"{config.root_dir}."
+    )
+
+
+>>>>>>> main
 def find_images(root_dir: Path) -> list[Path]:
     """Find image files under a root directory."""
 
@@ -217,6 +271,25 @@ def find_images(root_dir: Path) -> list[Path]:
     return sorted(images)
 
 
+<<<<<<< HEAD
+=======
+def _download_dataset(config: DatasetConfig, kaggle_path: str) -> None:
+    env = os.environ.copy()
+    env.setdefault("KAGGLE_CONFIG_DIR", str(Path.home() / ".kaggle"))
+    command = [
+        kaggle_path,
+        "datasets",
+        "download",
+        "-d",
+        config.dataset_slug,
+        "-p",
+        str(config.root_dir),
+        "--unzip",
+    ]
+    subprocess.run(command, check=True, env=env)
+
+
+>>>>>>> main
 def _has_images(path: Path) -> bool:
     return any(path.rglob(f"*{extension}") for extension in IMAGE_EXTENSIONS)
 
